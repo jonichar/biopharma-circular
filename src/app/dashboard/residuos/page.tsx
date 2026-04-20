@@ -11,6 +11,9 @@ export default function ResiduosPage() {
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   // Form state
@@ -105,25 +108,30 @@ export default function ResiduosPage() {
     setIsFormOpen(true);
   };
 
-  const deleteResiduo = async (id: string, nombreResiduo: string) => {
-    // Reemplazamos confirm() nativo corto por traza clara por si era bloqueado
-    const isConfirmed = window.confirm(`¿Estás seguro de que quieres eliminar: ${nombreResiduo}?`);
-    if (!isConfirmed) return;
+  const promptDeleteResiduo = (id: string, nombreResiduo: string) => {
+    setDeleteConfirmId(id);
+    setDeleteConfirmName(nombreResiduo);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    setIsDeleting(true);
 
     try {
-      const { data, error } = await supabase.from("residuos").delete().eq("id", id).select();
+      const { data, error } = await supabase.from("residuos").delete().eq("id", deleteConfirmId).select();
       
       if (error) {
         alert("Error de la base de datos al eliminar: " + error.message);
       } else if (!data || data.length === 0) {
         alert("Atención: El residuo no se eliminó. Podría ser un bloqueo de seguridad (RLS) en la base de datos.");
       } else {
-        alert("Residuo eliminado con éxito.");
+        setDeleteConfirmId(null);
         fetchResiduos();
       }
     } catch (err: any) {
       alert("Error de red o código: " + err.message);
     }
+    setIsDeleting(false);
   };
 
   const resetForm = () => {
@@ -296,6 +304,37 @@ export default function ResiduosPage() {
         </div>
       )}
 
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmId && (
+        <div className={styles.mobileOverlay} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)'}}>
+           <div className={styles.formCard} style={{maxWidth: 400, marginTop: 0}}>
+             <h2 className={styles.formTitle} style={{color: '#ef4444'}}>Eliminar registro</h2>
+             <p style={{marginBottom: '1.5rem', color: 'var(--text-secondary)'}}>
+               ¿Estás seguro de que quieres eliminar <strong>{deleteConfirmName}</strong>? Esta acción no se puede deshacer.
+             </p>
+             <div className={styles.formActions} style={{marginTop: 0}}>
+               <button 
+                 type="button" 
+                 className={styles.cancelBtn} 
+                 onClick={() => setDeleteConfirmId(null)}
+                 disabled={isDeleting}
+               >
+                 Cancelar
+               </button>
+               <button 
+                 type="button" 
+                 className={styles.primaryBtn} 
+                 style={{background: '#ef4444', borderColor: '#ef4444'}}
+                 onClick={confirmDelete}
+                 disabled={isDeleting}
+               >
+                 {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+               </button>
+             </div>
+           </div>
+        </div>
+      )}
+
       {/* LIST OF RESIDUES */}
       {!loading && (
         <div className={styles.listContainer}>
@@ -357,7 +396,7 @@ export default function ResiduosPage() {
                   <button
                     className={styles.iconBtn}
                     title="Eliminar"
-                    onClick={() => deleteResiduo(residuo.id, residuo.nombre)}
+                    onClick={() => promptDeleteResiduo(residuo.id, residuo.nombre)}
                   >
                     <Trash2 size={16} />
                   </button>
