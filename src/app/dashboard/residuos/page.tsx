@@ -18,6 +18,7 @@ export default function ResiduosPage() {
   const [tipo, setTipo] = useState<ResiduoType>("farmaceutico");
   const [cantidad, setCantidad] = useState("");
   const [unidad, setUnidad] = useState("kg");
+  const [condicionMaterial, setCondicionMaterial] = useState("vencido");
   const [formLoading, setFormLoading] = useState(false);
 
   const supabase = createBrowserClient(
@@ -57,6 +58,7 @@ export default function ResiduosPage() {
       tipo,
       cantidad: parseFloat(cantidad),
       unidad,
+      condicion_material: condicionMaterial,
       estado: "registrado" as ResiduoStatus,
     };
 
@@ -85,6 +87,7 @@ export default function ResiduosPage() {
     setTipo("farmaceutico");
     setCantidad("");
     setUnidad("kg");
+    setCondicionMaterial("vencido");
   };
 
   // Helper formats
@@ -192,6 +195,19 @@ export default function ResiduosPage() {
                 </select>
               </div>
 
+              <div className={styles.fieldGroup}>
+                <label className={styles.label}>Condición física</label>
+                <select
+                  className={styles.input}
+                  value={condicionMaterial}
+                  onChange={(e) => setCondicionMaterial(e.target.value)}
+                >
+                  <option value="vencido">Vencido</option>
+                  <option value="en_uso">En uso / Saldo</option>
+                  <option value="danado">Dañado</option>
+                </select>
+              </div>
+
               <div className={`${styles.fieldGroup} ${styles.fullWidth}`}>
                 <label className={styles.label}>Descripción (Opcional)</label>
                 <textarea
@@ -255,6 +271,12 @@ export default function ResiduosPage() {
                       <Settings size={14} />
                       {typeLabels[residuo.tipo] || residuo.tipo}
                     </div>
+                    {residuo.condicion_material && (
+                      <div className={styles.metaItem}>
+                        <Package size={14} />
+                        <span style={{ textTransform: "capitalize" }}>{residuo.condicion_material.replace("_", " ")}</span>
+                      </div>
+                    )}
                     <div className={styles.metaItem}>
                       <span style={{ fontWeight: "700" }}>
                         {residuo.cantidad} {residuo.unidad}

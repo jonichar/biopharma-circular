@@ -42,6 +42,7 @@ export interface Residuo {
   cantidad: number;
   unidad: string;
   estado: ResiduoStatus;
+  condicion_material?: string;
   nivel_riesgo?: RiskLevel;
   ubicacion_lat?: number;
   ubicacion_lng?: number;
