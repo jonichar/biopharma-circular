@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌱💊 BioPharma Circular
 
-## Getting Started
+> **Plataforma de gestión y valorización de residuos farmacéuticos y biológicos**
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-green?style=flat-square&logo=supabase)](https://supabase.com/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
+
+---
+
+## 🧠 ¿Qué es BioPharma Circular?
+
+Una plataforma web de **economía circular** que conecta:
+
+- 👤 **Personas** — hogares con medicamentos vencidos o residuos orgánicos
+- 🏢 **Empresas** — farmacias, clínicas, laboratorios, restaurantes
+- 🔬 **Gestores biotecnológicos** — emprendimientos que transforman residuos
+
+Todo enfocado en **recolectar, analizar y transformar residuos en nuevos productos útiles**.
+
+> *"Nuestro proyecto transforma residuos farmacéuticos y biológicos en oportunidades económicas mediante biotecnología, reduciendo el impacto ambiental y conectando ciudadanos con la industria en un modelo de economía circular."*
+
+---
+
+## 🔗 ¿Cómo une Química + Farmacia + Biotecnología?
+
+| 🧪 Química | 💊 Farmacia | 🌱 Biotecnología |
+|------------|------------|-----------------|
+| Clasificación de fármacos | Manejo seguro de medicamentos | Biofertilizantes |
+| Evaluación de toxicidad | Educación sobre uso correcto | Biogás |
+| Análisis de estabilidad | Disposición final regulada | Enzimas y biomateriales |
+| Impacto ambiental | Cumplimiento normativo | Economía circular |
+
+---
+
+## 🌐 Funcionalidades
+
+### 📲 Registro de Residuos
+Personas y empresas registran tipo, cantidad y ubicación de sus residuos.
+
+### 🧠 Sistema Inteligente
+Análisis automático: riesgo químico, disposición correcta, uso biotecnológico.
+
+### 🗺️ Conexión con Gestores
+Marketplace que conecta residuos con gestores certificados.
+
+### 📊 Calculadora de Impacto
+CO₂ evitado, contaminación reducida, valor económico generado.
+
+### 🏢 Módulo Empresarial
+Reportes de sostenibilidad, gestión regulada, cumplimiento ambiental.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Tecnología | Uso |
+|-----------|-----|
+| **Next.js 15** (App Router) | Framework frontend + API |
+| **TypeScript** | Tipado estático |
+| **CSS Modules** | Estilos modulares (vanilla CSS) |
+| **Supabase** | Auth, PostgreSQL, Storage, Realtime |
+| **Vercel** | Hosting + CI/CD |
+| **Lucide React** | Iconografía |
+
+---
+
+## 🚀 Getting Started
+
+### Prerrequisitos
+
+- Node.js 18+
+- npm 9+
+- Cuenta en [Supabase](https://supabase.com)
+- Cuenta en [Vercel](https://vercel.com) (opcional para deploy)
+
+### Instalación
 
 ```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/biopharma-circular.git
+cd biopharma-circular
+
+# Instalar dependencias
+npm install
+
+# Copiar variables de entorno
+cp .env.local.example .env.local
+# Editar .env.local con tus credenciales de Supabase
+
+# Iniciar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Estructura del Proyecto
 
-## Learn More
+```
+src/
+├── app/                    # App Router (páginas)
+│   ├── layout.tsx          # Layout raíz
+│   ├── page.tsx            # Landing page
+│   ├── globals.css         # Design system
+│   └── (auth)/             # Rutas de autenticación
+├── components/
+│   ├── layout/             # Header, Footer
+│   ├── landing/            # Secciones landing page
+│   ├── ui/                 # Componentes base
+│   └── dashboard/          # Componentes dashboard
+├── lib/
+│   ├── supabase/           # Clientes Supabase
+│   └── utils.ts            # Utilidades
+├── types/                  # Definiciones TypeScript
+├── hooks/                  # Custom hooks
+└── middleware.ts            # Auth middleware
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔒 Variables de Entorno
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Descripción | Requerida |
+|----------|------------|-----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase | ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima (pública) | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (server-only) | ✅ |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 💰 Modelo de Negocio
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Suscripción empresarial** — Planes mensuales para reportes y gestión
+- **Marketplace** — Comisión por conexión residuo-gestor
+- **Datos ambientales** — Venta de datos anonimizados para investigación
+
+---
+
+## 📄 Licencia
+
+MIT License — ver [LICENSE](LICENSE) para más detalles.
+
+---
+
+## 👥 Equipo
+
+Desarrollado con ❤️ para la innovación en bioeconomía circular.
