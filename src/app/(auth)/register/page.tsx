@@ -56,7 +56,7 @@ export default function RegisterPage() {
     }
 
     const { error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: email.trim().replace(/['"]/g, ""),
       password,
       options: {
         data: {
