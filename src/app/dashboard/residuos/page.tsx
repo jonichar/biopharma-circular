@@ -105,14 +105,24 @@ export default function ResiduosPage() {
     setIsFormOpen(true);
   };
 
-  const deleteResiduo = async (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este residuo?")) {
-      const { error } = await supabase.from("residuos").delete().eq("id", id);
+  const deleteResiduo = async (id: string, nombreResiduo: string) => {
+    // Reemplazamos confirm() nativo corto por traza clara por si era bloqueado
+    const isConfirmed = window.confirm(`¿Estás seguro de que quieres eliminar: ${nombreResiduo}?`);
+    if (!isConfirmed) return;
+
+    try {
+      const { data, error } = await supabase.from("residuos").delete().eq("id", id).select();
+      
       if (error) {
-        alert("Error al eliminar: " + error.message);
+        alert("Error de la base de datos al eliminar: " + error.message);
+      } else if (!data || data.length === 0) {
+        alert("Atención: El residuo no se eliminó. Podría ser un bloqueo de seguridad (RLS) en la base de datos.");
       } else {
+        alert("Residuo eliminado con éxito.");
         fetchResiduos();
       }
+    } catch (err: any) {
+      alert("Error de red o código: " + err.message);
     }
   };
 
@@ -347,7 +357,7 @@ export default function ResiduosPage() {
                   <button
                     className={styles.iconBtn}
                     title="Eliminar"
-                    onClick={() => deleteResiduo(residuo.id)}
+                    onClick={() => deleteResiduo(residuo.id, residuo.nombre)}
                   >
                     <Trash2 size={16} />
                   </button>
