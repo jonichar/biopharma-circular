@@ -55,8 +55,15 @@ export default function RegisterPage() {
       return;
     }
 
+    // Sanitizar completamente: sin espacios intermedios, invisibles o comillas
+    const cleanEmail = email
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
+      .replace(/['"]/g, "");
+
     const { error: signUpError } = await supabase.auth.signUp({
-      email: email.trim().replace(/['"]/g, ""),
+      email: cleanEmail,
       password,
       options: {
         data: {
