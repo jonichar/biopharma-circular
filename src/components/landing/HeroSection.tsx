@@ -174,7 +174,7 @@ export default function HeroSection() {
             Comenzar ahora
             <ArrowRight size={18} />
           </a>
-          <a href="#features" className={styles.ctaSecondary} id="hero-cta-secondary">
+          <a href="#como-funciona" className={styles.ctaSecondary} id="hero-cta-secondary">
             <Play size={16} />
             Cómo funciona
           </a>

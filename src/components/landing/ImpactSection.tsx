@@ -116,7 +116,7 @@ export default function ImpactSection() {
         </div>
 
         {/* Process flow */}
-        <div className={styles.process}>
+        <div className={styles.process} id="como-funciona">
           <h3 className={styles.processTitle}>
             <TreePine size={22} />
             ¿Cómo funciona el ciclo circular?
