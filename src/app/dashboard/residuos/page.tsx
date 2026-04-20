@@ -10,6 +10,7 @@ export default function ResiduosPage() {
   const [residuos, setResiduos] = useState<Residuo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   // Form state
@@ -62,26 +63,61 @@ export default function ResiduosPage() {
       estado: "registrado" as ResiduoStatus,
     };
 
-    const { error } = await supabase.from("residuos").insert([newResiduo]);
+    if (editingId) {
+      // UPDATE Mode
+      const { error } = await supabase
+        .from("residuos")
+        .update(newResiduo)
+        .eq("id", editingId);
 
-    if (!error) {
-      setIsFormOpen(false);
-      resetForm();
-      fetchResiduos();
+      if (!error) {
+        setIsFormOpen(false);
+        resetForm();
+        fetchResiduos();
+      } else {
+        alert("Error al actualizar: " + error.message);
+        console.error(error);
+      }
     } else {
-      console.error(error);
+      // INSERT Mode
+      const { error } = await supabase.from("residuos").insert([newResiduo]);
+
+      if (!error) {
+        setIsFormOpen(false);
+        resetForm();
+        fetchResiduos();
+      } else {
+        alert("Error al guardar: " + error.message);
+        console.error(error);
+      }
     }
     setFormLoading(false);
   };
 
+  const openEditForm = (residuo: Residuo) => {
+    setEditingId(residuo.id);
+    setNombre(residuo.nombre);
+    setDescripcion(residuo.descripcion || "");
+    setTipo(residuo.tipo);
+    setCantidad(residuo.cantidad.toString());
+    setUnidad(residuo.unidad);
+    setCondicionMaterial(residuo.condicion_material || "vencido");
+    setIsFormOpen(true);
+  };
+
   const deleteResiduo = async (id: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar este residuo?")) {
-      await supabase.from("residuos").delete().eq("id", id);
-      fetchResiduos();
+      const { error } = await supabase.from("residuos").delete().eq("id", id);
+      if (error) {
+        alert("Error al eliminar: " + error.message);
+      } else {
+        fetchResiduos();
+      }
     }
   };
 
   const resetForm = () => {
+    setEditingId(null);
     setNombre("");
     setDescripcion("");
     setTipo("farmaceutico");
@@ -118,7 +154,10 @@ export default function ResiduosPage() {
         {!isFormOpen && (
           <button
             className={styles.primaryBtn}
-            onClick={() => setIsFormOpen(true)}
+            onClick={() => {
+              resetForm();
+              setIsFormOpen(true);
+            }}
           >
             <Plus size={18} />
             Añadir residuo
@@ -126,14 +165,19 @@ export default function ResiduosPage() {
         )}
       </header>
 
-      {/* CREATE FORM */}
+      {/* CREATE/EDIT FORM */}
       {isFormOpen && (
         <div className={styles.formCard}>
           <div className={styles.formHeader}>
-            <h2 className={styles.formTitle}>Registrar nuevo residuo</h2>
+            <h2 className={styles.formTitle}>
+              {editingId ? "Editar residuo" : "Registrar nuevo residuo"}
+            </h2>
             <button
               className={styles.closeBtn}
-              onClick={() => setIsFormOpen(false)}
+              onClick={() => {
+                setIsFormOpen(false);
+                resetForm();
+              }}
             >
               <X size={20} />
             </button>
@@ -223,7 +267,10 @@ export default function ResiduosPage() {
               <button
                 type="button"
                 className={styles.cancelBtn}
-                onClick={() => setIsFormOpen(false)}
+                onClick={() => {
+                  setIsFormOpen(false);
+                  resetForm();
+                }}
               >
                 Cancelar
               </button>
@@ -232,7 +279,7 @@ export default function ResiduosPage() {
                 className={styles.primaryBtn}
                 disabled={formLoading}
               >
-                {formLoading ? "Guardando..." : "Guardar residuo"}
+                {formLoading ? "Guardando..." : editingId ? "Actualizar residuo" : "Guardar residuo"}
               </button>
             </div>
           </form>
@@ -290,7 +337,11 @@ export default function ResiduosPage() {
                 </div>
 
                 <div className={styles.actions}>
-                  <button className={styles.iconBtn} title="Editar">
+                  <button 
+                    className={styles.iconBtn} 
+                    title="Editar"
+                    onClick={() => openEditForm(residuo)}
+                  >
                     <Edit3 size={16} />
                   </button>
                   <button
