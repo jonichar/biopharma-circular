@@ -43,8 +43,8 @@ export default function Header() {
             <Leaf size={24} />
           </div>
           <div className={styles.logoText}>
-            <span className={styles.logoPrimary}>BioPharma</span>
-            <span className={styles.logoSecondary}>Circular</span>
+            <span className={styles.logoPrimary}>Pharma</span>
+            <span className={styles.logoSecondary}>BioNet</span>
           </div>
         </a>
 

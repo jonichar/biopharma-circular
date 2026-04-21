@@ -43,8 +43,8 @@ export default function Footer() {
               </div>
               <div>
                 <div className={styles.logoName}>
-                  <span>BioPharma</span>
-                  <span className={styles.logoAccent}>Circular</span>
+                  <span>Pharma</span>
+                  <span className={styles.logoAccent}>BioNet</span>
                 </div>
                 <p className={styles.tagline}>
                   Transformando residuos en oportunidades
@@ -102,7 +102,7 @@ export default function Footer() {
         <div className={styles.contactBar}>
           <div className={styles.contactItem}>
             <Mail size={16} />
-            <span>contacto@biopharmacircular.com</span>
+            <span>contacto@pharmabionet.com</span>
           </div>
           <div className={styles.contactItem}>
             <Phone size={16} />
@@ -117,7 +117,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            © {new Date().getFullYear()} BioPharma Circular. Todos los derechos
+            © {new Date().getFullYear()} PharmaBioNet. Todos los derechos
             reservados.
           </p>
           <div className={styles.bottomLinks}>

@@ -1,5 +1,5 @@
 /* =============================================
-   BioPharma Circular — Type Definitions
+   PharmaBioNet — Type Definitions
    ============================================= */
 
 // ---- User & Auth ----
