@@ -26,10 +26,9 @@ export type ResiduoType = "farmaceutico" | "organico" | "quimico" | "biologico";
 
 export type ResiduoStatus =
   | "registrado"
-  | "en_analisis"
-  | "disponible"
-  | "recogido"
-  | "transformado";
+  | "solicitud_enviada"
+  | "en_proceso"
+  | "recolectado";
 
 export type RiskLevel = "bajo" | "medio" | "alto" | "critico";
 
@@ -54,10 +53,11 @@ export interface Residuo {
 }
 
 export interface AnalisisResultado {
-  riesgo_quimico: string;
-  disposicion_correcta: string;
-  uso_biotecnologico: string;
-  toxicidad: RiskLevel;
+  nivel_riesgo: RiskLevel;
+  explicacion: string;
+  no_hacer: string;
+  si_hacer: string;
+  potencial_biotecnologico: string;
   impacto_ambiental: string;
 }
 
@@ -94,11 +94,17 @@ export interface Conexion {
   id: string;
   residuo_id: string;
   gestor_id: string;
+  solicitante_id: string;
   estado: ConexionStatus;
+  direccion_recogida?: string;
   fecha_recogida?: string;
   notas?: string;
   created_at: string;
   updated_at: string;
+  // Joined fields
+  residuos?: Residuo;
+  gestor_profile?: Profile;
+  solicitante_profile?: Profile;
 }
 
 // ---- Impacto ----
@@ -123,4 +129,13 @@ export interface ReporteEmpresarial {
   co2_evitado_total: number;
   cumplimiento_porcentaje: number;
   generado_at: string;
+}
+
+// ---- Analysis Result (for modal) ----
+export interface AnalisisCompleto {
+  nivel_riesgo: RiskLevel;
+  explicacion_riesgo: string;
+  no_hacer: string[];
+  si_hacer: string[];
+  potencial_biotecnologico: string;
 }
