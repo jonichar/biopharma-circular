@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import {
   Plus, X, Package, Calendar, Settings, Edit3, Trash2,
-  Truck, FlaskConical, Search, CheckCircle2, Circle, ArrowRight,
+  Truck, FlaskConical, Search, CheckCircle2, Circle, ArrowRight, TreePine, Droplets, Recycle, CircleDollarSign
 } from "lucide-react";
 import styles from "./page.module.css";
-import { Residuo, ResiduoType, ResiduoStatus, Profile, AnalisisCompleto } from "@/types";
+import { Residuo, ResiduoType, ResiduoStatus, Profile, AnalisisCompleto, TiposResiduosFactores } from "@/types";
 
 // ---- Analysis data generator (simulated AI) ----
 const generateAnalysis = (residuo: Residuo): AnalisisCompleto => {
@@ -146,6 +146,11 @@ export default function ResiduosPage() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisPhase, setAnalysisPhase] = useState("");
 
+  // Individual Impact modal
+  const [impactoResiduo, setImpactoResiduo] = useState<Residuo | null>(null);
+  const [impactoData, setImpactoData] = useState<any>(null);
+  const [impactoLoading, setImpactoLoading] = useState(false);
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -205,6 +210,42 @@ export default function ResiduosPage() {
     fetchResiduos();
   }, []);
 
+  // ---- Helpers for Impact Calculation ----
+  const fetchAndSaveImpact = async (residuoId: string, rTipo: string, rCantidad: number, rUserId: string) => {
+    // Check if impact already exists
+    const { data: existing } = await supabase.from("impacto_logs").select("*").eq("residuo_id", residuoId).single();
+    if (existing) return existing;
+
+    // Fetch factors
+    const { data: factorData } = await supabase
+      .from("tipos_residuos_factores")
+      .select("*")
+      .eq("tipo", rTipo)
+      .single();
+
+    if (!factorData) return null;
+
+    const baseAmount = rCantidad;
+
+    const co2 = baseAmount * factorData.factor_co2;
+    const agua = baseAmount * factorData.factor_agua;
+    const recuperados = baseAmount * factorData.porcentaje_aprovechamiento;
+    const valor = baseAmount * factorData.factor_valorizacion;
+
+    const newImpact = {
+      user_id: rUserId,
+      residuo_id: residuoId,
+      co2_evitado: Math.round(co2 * 100) / 100,
+      agua_protegida: Math.round(agua * 100) / 100,
+      residuos_recuperados: Math.round(recuperados * 100) / 100,
+      valor_economico: Math.round(valor * 100) / 100,
+    };
+
+    const { data: inserted, error } = await supabase.from("impacto_logs").insert([newImpact]).select().single();
+    if (error) console.error("Error inserting impact", error);
+    return inserted;
+  };
+
   // ---- CRUD (company/person only) ----
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,26 +264,30 @@ export default function ResiduosPage() {
     };
 
     if (editingId) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("residuos")
         .update(newResiduo)
-        .eq("id", editingId);
+        .eq("id", editingId)
+        .select();
 
-      if (!error) {
+      if (!error && data) {
+        await supabase.from("impacto_logs").delete().eq("residuo_id", editingId);
+        await fetchAndSaveImpact(editingId, data[0].tipo, data[0].cantidad, userId);
         setIsFormOpen(false);
         resetForm();
         fetchResiduos();
       } else {
-        alert("Error al actualizar: " + error.message);
+        alert("Error al actualizar: " + (error?.message || "Error desconocido"));
       }
     } else {
-      const { error } = await supabase.from("residuos").insert([newResiduo]);
-      if (!error) {
+      const { data, error } = await supabase.from("residuos").insert([newResiduo]).select();
+      if (!error && data) {
+        await fetchAndSaveImpact(data[0].id, data[0].tipo, data[0].cantidad, userId);
         setIsFormOpen(false);
         resetForm();
         fetchResiduos();
       } else {
-        alert("Error al guardar: " + error.message);
+        alert("Error al guardar: " + (error?.message || "Error desconocido"));
       }
     }
     setFormLoading(false);
@@ -360,6 +405,19 @@ export default function ResiduosPage() {
     const result = generateAnalysis(residuo);
     setAnalysisResult(result);
     setAnalysisLoading(false);
+
+    // Calc retroactivo si no existe (fire & forget)
+    fetchAndSaveImpact(residuo.id, residuo.tipo, residuo.cantidad, residuo.user_id).catch(console.error);
+  };
+
+  const openImpactView = async (residuo: Residuo) => {
+    setImpactoResiduo(residuo);
+    setImpactoData(null);
+    setImpactoLoading(true);
+
+    const data = await fetchAndSaveImpact(residuo.id, residuo.tipo, residuo.cantidad, residuo.user_id);
+    setImpactoData(data);
+    setImpactoLoading(false);
   };
 
   // ---- Gestor: Update Status ----
@@ -652,6 +710,64 @@ export default function ResiduosPage() {
         </div>
       )}
 
+      {/* INDIVIDUAL IMPACT MODAL */}
+      {impactoResiduo && (
+        <div className={styles.overlay}>
+          <div className={styles.modal} style={{ maxWidth: 500 }}>
+            <div className={styles.formHeader}>
+              <h2 className={styles.formTitle}>
+                <TreePine size={20} style={{ verticalAlign: "middle", marginRight: 8, color: "#10b981" }} />
+                Impacto Ambiental
+              </h2>
+              <button className={styles.closeBtn} onClick={() => { setImpactoResiduo(null); setImpactoData(null); }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {impactoLoading || !impactoData ? (
+              <div className={styles.analysisLoading} style={{ padding: "3rem 1rem" }}>
+                <div className={styles.analysisSpinner} />
+                <p className={styles.analysisPhase}>Calculando contribución ambiental...</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+                <div style={{ padding: "1rem", background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#10b981", marginBottom: "0.5rem" }}>
+                    <TreePine size={18} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>CO₂ Evitado</span>
+                  </div>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.co2_evitado} kg</strong>
+                </div>
+
+                <div style={{ padding: "1rem", background: "rgba(59, 130, 246, 0.1)", borderRadius: "12px", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#3b82f6", marginBottom: "0.5rem" }}>
+                    <Droplets size={18} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Agua Protegida</span>
+                  </div>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.agua_protegida} L</strong>
+                </div>
+
+                <div style={{ padding: "1rem", background: "rgba(139, 92, 246, 0.1)", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#8b5cf6", marginBottom: "0.5rem" }}>
+                    <Recycle size={18} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Recuperación</span>
+                  </div>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.residuos_recuperados} kg</strong>
+                </div>
+
+                <div style={{ padding: "1rem", background: "rgba(245, 158, 11, 0.1)", borderRadius: "12px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f59e0b", marginBottom: "0.5rem" }}>
+                    <CircleDollarSign size={18} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Valor Econ.</span>
+                  </div>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>${impactoData.valor_economico}</strong>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* LIST OF RESIDUES */}
       {!loading && (
         <div className={styles.listContainer}>
@@ -706,6 +822,14 @@ export default function ResiduosPage() {
                         style={{ color: "#8b5cf6", borderColor: "rgba(139, 92, 246, 0.3)" }}>
                         <FlaskConical size={15} />
                         <span>Analizar</span>
+                      </button>
+
+                      {/* Ver Impacto — all roles */}
+                      <button className={styles.actionBtn} title="Ver impacto ambiental generado"
+                        onClick={() => openImpactView(residuo)}
+                        style={{ color: "#10b981", borderColor: "rgba(16, 185, 129, 0.3)", marginLeft: "0.5rem" }}>
+                        <TreePine size={15} />
+                        <span>Impacto</span>
                       </button>
 
                       {/* Solicitar recolección — company/person only, only if registrado */}

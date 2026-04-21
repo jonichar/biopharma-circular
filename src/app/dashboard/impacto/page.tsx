@@ -12,9 +12,7 @@ type ImpactoMetrics = {
   recolectados: number;
 };
 
-// Constants for impact calculation per kg
-const CO2_PER_KG = 2.5;
-const AGUA_PER_KG = 15;
+// Constants removed as we use DB factos
 
 export default function ImpactoPage() {
   const [metrics, setMetrics] = useState<ImpactoMetrics>({
@@ -59,30 +57,38 @@ export default function ImpactoPage() {
           const ids = conexiones.map((c: any) => c.residuo_id);
           const { data } = await supabase
             .from("residuos")
-            .select("cantidad, unidad, estado")
+            .select("id, cantidad, unidad, estado")
             .in("id", ids);
           residuos = data || [];
         }
       } else {
         const { data } = await supabase
           .from("residuos")
-          .select("cantidad, unidad, estado")
+          .select("id, cantidad, unidad, estado")
           .eq("user_id", user.id);
         residuos = data || [];
       }
 
+      const residuoIds = residuos.map((r: any) => r.id);
+      let impactos: any[] = [];
+      if (residuoIds.length > 0) {
+        const { data: impData } = await supabase
+          .from("impacto_logs")
+          .select("*")
+          .in("residuo_id", residuoIds);
+        impactos = impData || [];
+      }
+
       const recolectados = residuos.filter((r: any) => r.estado === "recolectado");
-      const totalKg = recolectados.reduce((sum: number, r: any) => {
-        let kg = r.cantidad || 0;
-        if (r.unidad === "toneladas") kg *= 1000;
-        if (r.unidad === "litros") kg *= 0.8;
-        return sum + kg;
-      }, 0);
+      
+      const totalCo2 = impactos.reduce((sum, i) => sum + i.co2_evitado, 0);
+      const totalAgua = impactos.reduce((sum, i) => sum + i.agua_protegida, 0);
+      const totalRecuperados = impactos.reduce((sum, i) => sum + i.residuos_recuperados, 0);
 
       setMetrics({
-        co2_evitado: Math.round(totalKg * CO2_PER_KG * 10) / 10,
-        agua_protegida: Math.round(totalKg * AGUA_PER_KG),
-        residuos_recuperados: totalKg,
+        co2_evitado: Math.round(totalCo2 * 10) / 10,
+        agua_protegida: Math.round(totalAgua * 10) / 10,
+        residuos_recuperados: Math.round(totalRecuperados * 10) / 10,
         total_residuos: residuos.length,
         recolectados: recolectados.length,
       });

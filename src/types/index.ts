@@ -111,12 +111,20 @@ export interface Conexion {
 export interface ImpactoLog {
   id: string;
   user_id: string;
-  residuo_id?: string;
-  co2_evitado_kg: number;
-  agua_protegida_litros: number;
-  energia_generada_kwh: number;
-  valor_economico_usd: number;
+  residuo_id: string;
+  co2_evitado: number;
+  agua_protegida: number;
+  residuos_recuperados: number;
+  valor_economico: number;
   created_at: string;
+}
+
+export interface TiposResiduosFactores {
+  tipo: ResiduoType;
+  factor_co2: number;
+  factor_agua: number;
+  porcentaje_aprovechamiento: number;
+  factor_valorizacion: number;
 }
 
 // ---- Reportes Empresariales ----
