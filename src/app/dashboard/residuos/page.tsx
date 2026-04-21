@@ -736,7 +736,7 @@ export default function ResiduosPage() {
                     <TreePine size={18} />
                     <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>CO₂ Evitado</span>
                   </div>
-                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.co2_evitado} kg</strong>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.co2_evitado.toLocaleString('es-CO')} kg</strong>
                 </div>
 
                 <div style={{ padding: "1rem", background: "rgba(59, 130, 246, 0.1)", borderRadius: "12px", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
@@ -744,7 +744,7 @@ export default function ResiduosPage() {
                     <Droplets size={18} />
                     <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Agua Protegida</span>
                   </div>
-                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.agua_protegida} L</strong>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.agua_protegida.toLocaleString('es-CO')} L</strong>
                 </div>
 
                 <div style={{ padding: "1rem", background: "rgba(139, 92, 246, 0.1)", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
@@ -752,7 +752,7 @@ export default function ResiduosPage() {
                     <Recycle size={18} />
                     <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Recuperación</span>
                   </div>
-                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.residuos_recuperados} kg</strong>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>{impactoData.residuos_recuperados.toLocaleString('es-CO')} kg</strong>
                 </div>
 
                 <div style={{ padding: "1rem", background: "rgba(245, 158, 11, 0.1)", borderRadius: "12px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
@@ -760,7 +760,7 @@ export default function ResiduosPage() {
                     <CircleDollarSign size={18} />
                     <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Valor Econ.</span>
                   </div>
-                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>${impactoData.valor_economico}</strong>
+                  <strong style={{ fontSize: "1.5rem", color: "var(--text-primary)" }}>${impactoData.valor_economico.toLocaleString('es-CO')}</strong>
                 </div>
               </div>
             )}

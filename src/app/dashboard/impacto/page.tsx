@@ -141,7 +141,7 @@ export default function ImpactoPage() {
         <MetricCard
           icon={<TreePine size={24} />}
           label="CO₂ Evitado"
-          value={`${metrics.co2_evitado} kg`}
+          value={`${metrics.co2_evitado.toLocaleString('es-CO')} kg`}
           color="#10b981"
           maxVal={100}
           currentVal={metrics.co2_evitado}
@@ -150,7 +150,7 @@ export default function ImpactoPage() {
         <MetricCard
           icon={<Droplets size={24} />}
           label="Agua Protegida"
-          value={`${metrics.agua_protegida} L`}
+          value={`${metrics.agua_protegida.toLocaleString('es-CO')} L`}
           color="#3b82f6"
           maxVal={500}
           currentVal={metrics.agua_protegida}
@@ -159,7 +159,7 @@ export default function ImpactoPage() {
         <MetricCard
           icon={<Recycle size={24} />}
           label="Residuos Recuperados"
-          value={`${metrics.residuos_recuperados} kg`}
+          value={`${metrics.residuos_recuperados.toLocaleString('es-CO')} kg`}
           color="#8b5cf6"
           maxVal={50}
           currentVal={metrics.residuos_recuperados}
@@ -286,7 +286,7 @@ function BarItem({
       alignItems: "center", gap: 6,
     }}>
       <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)" }}>
-        {value}
+        {value.toLocaleString('es-CO')}
       </span>
       <div style={{
         width: "100%", maxWidth: 48,
